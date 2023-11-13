@@ -75,11 +75,41 @@ def print_board(board):
             ["X" if cell == X else "O" if cell == O else " " for cell in row]))
         print("-" * 9)
 
+def evaluate_and_print(board, player, winner_score):
+    possible_moves = generate_tree(board, player)
+    for move in possible_moves:
+        i, j, score = move
+        print(f"\nEvaluación para colocar {player} en ({i}, {j}):")
+
+        future_board = copy.deepcopy(board)
+        future_board[i][j] = player
+        print_board(future_board)
+
+        # Evaluar si el jugador gana en una jugada futura
+        if check_win(future_board, player):
+            winner_score = FUTURE_WIN_SCORE
+            print(
+                f"Puntuación: {winner_score} puntos: Ganaste en esta futura jugada\n")
+            print(
+                "----------------------------------------------------------------------")
+        
+        elif check_win(future_board, 3 - player):
+            winner_score = LOSE_SCORE
+            print(f"Puntuación: {winner_score} puntos: Perdiste\n")
+            return
+        else:
+            winner_score = NEUTRAL_SCORE
+            evaluate_and_print(future_board, 3 - player, winner_score)
+            print("-------------------------------Jugadas 2---------------------------------------")
+            
+    if winner_score == NEUTRAL_SCORE:
+        print(f"Puntuación: {winner_score} puntos: Empate\n")
+
 # Función principal para mostrar las evaluaciones
 def show_evaluations():
-    initial_board = [[O, EMPTY, X],
-                     [X, X, O],
-                     [O, X, O]]
+    initial_board = [[EMPTY, X, EMPTY],
+                     [O, X, EMPTY],
+                     [X, O, X]]
 
     print("Tablero inicial:")
     print_board(initial_board)
@@ -90,34 +120,17 @@ def show_evaluations():
     if check_win(initial_board, player):
         winner_score = WIN_SCORE
         print(f"Puntuación: {winner_score} puntos: Ganaste\n")
+        return
     elif check_win(initial_board, 3 - player):
         winner_score = LOSE_SCORE
         print(f"Puntuación: {winner_score} puntos: Perdiste\n")
+        return
     else:
         winner_score = NEUTRAL_SCORE
-       
-    possible_moves = generate_tree(initial_board, player)
-    if winner_score == NEUTRAL_SCORE:
-        for move in possible_moves:
-                i, j, score = move
-                print(
-                    f"\nEvaluación para colocar {player} en ({i}, {j}):")
-                future_board = copy.deepcopy(initial_board)
-                future_board[i][j] = player
-                print_board(future_board) 
-                # Evaluar si el jugador gana en una jugada futura
-                if check_win(future_board, player):
-                    winner_score = FUTURE_WIN_SCORE
-                    print(f"Puntuación: {winner_score} puntos: Ganaste esta futura jugada\n")
-                    return
-                elif check_win(future_board, 3 - player):
-                    winner_score = FUTURE_LOSE_SCORE
-                    print(f"Puntuación: {winner_score} puntos: Perdiste en esta futura jugada\n")
-                    return
-                else:
-                    print("EROR") 
-       
-        print(f"Puntuación: {winner_score} puntos: Empate\n")
+        print("-----------------------------------Posibles Movimientos-----------------------------------")
+        evaluate_and_print(initial_board, player, winner_score)
+
 
 if __name__ == "__main__":
     show_evaluations()
+

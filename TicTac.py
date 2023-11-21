@@ -28,7 +28,7 @@ def evaluate_move(board, player):
     if check_win(board, player):
         return WIN_SCORE
     elif check_win(board, 3 - player):
-        return -LOSE_SCORE
+        return LOSE_SCORE
     else:
         future_moves = []
         for i in range(3):
@@ -45,13 +45,13 @@ def evaluate_move(board, player):
         if player == X and best_future_score == WIN_SCORE:
             return FUTURE_WIN_SCORE
         elif player == O and best_future_score == -LOSE_SCORE:
-            return -FUTURE_WIN_SCORE
+            return FUTURE_WIN_SCORE
         elif best_future_score == NEUTRAL_SCORE:
             return NEUTRAL_SCORE
         elif check_win(board, player):
             return WIN_SCORE
         elif check_win(board, 3 - player):
-            return -LOSE_SCORE
+            return LOSE_SCORE
         else:
             return 0
 
@@ -86,30 +86,31 @@ def evaluate_and_print(board, player, winner_score):
         print_board(future_board)
 
         # Evaluar si el jugador gana en una jugada futura
-        if check_win(future_board, player):
+        if check_win(future_board, player) and player == 1:
             winner_score = FUTURE_WIN_SCORE
             print(
                 f"Puntuación: {winner_score} puntos: Ganaste en esta futura jugada\n")
             print(
                 "----------------------------------------------------------------------")
-        
-        elif check_win(future_board, 3 - player):
-            winner_score = LOSE_SCORE
-            print(f"Puntuación: {winner_score} puntos: Perdiste\n")
-            return
-        else:
-            winner_score = NEUTRAL_SCORE
+        elif check_win(future_board, player) and player == 2:
+            winner_score = FUTURE_LOSE_SCORE
+            print(f"Puntuación: {winner_score} puntos: Perdiste en una futura jugada\n")
+            print(
+             "----------------------------------------------------------------------")
+        else: 
             evaluate_and_print(future_board, 3 - player, winner_score)
-            print("-------------------------------Jugadas 2---------------------------------------")
             
-    if winner_score == NEUTRAL_SCORE:
-        print(f"Puntuación: {winner_score} puntos: Empate\n")
+            if move == possible_moves[-1] and winner_score == NEUTRAL_SCORE:
+                print(f"Puntuación: {winner_score} puntos: Empate\n")
+                print(
+                    "----------------------------------------------------------------------")
+                   
 
 # Función principal para mostrar las evaluaciones
 def show_evaluations():
-    initial_board = [[EMPTY, X, EMPTY],
-                     [O, X, EMPTY],
-                     [X, O, X]]
+    initial_board = [[O, EMPTY, O],
+                     [O, EMPTY, X],
+                     [X, EMPTY, X]]
 
     print("Tablero inicial:")
     print_board(initial_board)
@@ -133,4 +134,3 @@ def show_evaluations():
 
 if __name__ == "__main__":
     show_evaluations()
-
